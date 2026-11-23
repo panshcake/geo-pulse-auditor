@@ -1,0 +1,18 @@
+{
+  "manifest_version": 3,
+  "name": "GEO Pulse — AI Search & Citability Auditor",
+  "version": "1.0.0",
+  "description": "Audit any webpage for Generative Engine Optimization (GEO), AI search bots, llms.txt, JS crawl blindness, and LLM citability.",
+  "permissions": [
+    "activeTab",
+    "scripting"
+  ],
+  "host_permissions": [
+    "http://*/*",
+    "https://*/*"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Run GEO Readiness Audit"
+  }
+}

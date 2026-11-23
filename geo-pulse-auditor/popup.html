@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GEO Pulse Auditor</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <div class="ambient-glow"></div>
+
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo-mark">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path>
+          <path d="M2 12h20"></path>
+        </svg>
+      </div>
+      <div>
+        <h1>GEO Pulse</h1>
+        <span class="subtitle">AI Search &amp; Citability Auditor</span>
+      </div>
+    </div>
+    <button id="rescan-btn" class="icon-btn" title="Re-run Audit">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"></path>
+        <path d="M21 3v5h-5"></path>
+      </svg>
+    </button>
+  </header>
+
+  <div class="domain-bar">
+    <span class="pulse-dot" id="status-dot"></span>
+    <span id="current-domain" class="domain-text">Scanning active tab...</span>
+  </div>
+
+  <div id="error-banner" class="error-banner hidden"></div>
+
+  <main id="dashboard" class="dashboard">
+    <!-- Hero Score Card -->
+    <section class="hero-card">
+      <div class="gauge-wrap">
+        <svg class="gauge-svg" width="84" height="84" viewBox="0 0 84 84">
+          <circle class="gauge-bg" cx="42" cy="42" r="35"></circle>
+          <circle id="gauge-progress" class="gauge-fill" cx="42" cy="42" r="35"></circle>
+        </svg>
+        <div class="gauge-center">
+          <span id="total-score">--</span>
+          <small>/ 100</small>
+        </div>
+      </div>
+
+      <div class="hero-info">
+        <span id="grade-badge" class="grade-pill">ANALYZING</span>
+        <h2 id="grade-title">Evaluating AI Readiness...</h2>
+        <p id="grade-summary">Checking AI crawlers, llms.txt, JS hydration parity, and LLM extraction signals.</p>
+      </div>
+    </section>
+
+    <!-- Quick KPI Strip -->
+    <section class="kpi-strip">
+      <div class="kpi-box">
+        <span class="kpi-label">Search Bots</span>
+        <strong id="kpi-bots" class="kpi-val">-</strong>
+      </div>
+      <div class="kpi-box">
+        <span class="kpi-label">llms.txt</span>
+        <strong id="kpi-llms" class="kpi-val">-</strong>
+      </div>
+      <div class="kpi-box">
+        <span class="kpi-label">JS Hidden</span>
+        <strong id="kpi-js" class="kpi-val">-</strong>
+      </div>
+      <div class="kpi-box">
+        <span class="kpi-label">Schemas</span>
+        <strong id="kpi-schema" class="kpi-val">-</strong>
+      </div>
+    </section>
+
+    <!-- Module 1: AI Bots -->
+    <section class="audit-card open" data-module="bots">
+      <button class="card-header" type="button">
+        <div class="card-title-group">
+          <span class="module-tag">01</span>
+          <div>
+            <h3>AI Search vs. Training Crawlers</h3>
+            <p class="card-sub" id="bots-sub">Checking /robots.txt directives</p>
+          </div>
+        </div>
+        <div class="card-right">
+          <span id="bots-badge" class="status-pill neutral">...</span>
+          <span class="chevron">▾</span>
+        </div>
+      </button>
+      <div class="card-body" id="bots-body"></div>
+    </section>
+
+    <!-- Module 2: llms.txt -->
+    <section class="audit-card" data-module="llms">
+      <button class="card-header" type="button">
+        <div class="card-title-group">
+          <span class="module-tag">02</span>
+          <div>
+            <h3>/llms.txt &amp; Agent Index</h3>
+            <p class="card-sub" id="llms-sub">Checking root Markdown specification</p>
+          </div>
+        </div>
+        <div class="card-right">
+          <span id="llms-badge" class="status-pill neutral">...</span>
+          <span class="chevron">▾</span>
+        </div>
+      </button>
+      <div class="card-body" id="llms-body"></div>
+    </section>
+
+    <!-- Module 3: JS Blindness -->
+    <section class="audit-card" data-module="js">
+      <button class="card-header" type="button">
+        <div class="card-title-group">
+          <span class="module-tag">03</span>
+          <div>
+            <h3>AI Crawler JS Blindness</h3>
+            <p class="card-sub" id="js-sub">Raw server HTML vs. rendered DOM</p>
+          </div>
+        </div>
+        <div class="card-right">
+          <span id="js-badge" class="status-pill neutral">...</span>
+          <span class="chevron">▾</span>
+        </div>
+      </button>
+      <div class="card-body" id="js-body"></div>
+    </section>
+
+    <!-- Module 4: Citability & Entities -->
+    <section class="audit-card" data-module="citability">
+      <button class="card-header" type="button">
+        <div class="card-title-group">
+          <span class="module-tag">04</span>
+          <div>
+            <h3>LLM Citability &amp; Entity Schema</h3>
+            <p class="card-sub" id="citability-sub">Answer blocks, JSON-LD &amp; data density</p>
+          </div>
+        </div>
+        <div class="card-right">
+          <span id="citability-badge" class="status-pill neutral">...</span>
+          <span class="chevron">▾</span>
+        </div>
+      </button>
+      <div class="card-body" id="citability-body"></div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-actions">
+      <button id="copy-report-btn" class="secondary-btn" type="button" title="Copy Markdown to Clipboard">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+        </svg>
+        <span id="copy-btn-text">Copy MD</span>
+      </button>
+
+      <button id="download-report-btn" class="primary-btn" type="button">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+          <polyline points="7 10 12 15 17 10"></polyline>
+          <line x1="12" y1="15" x2="12" y2="3"></line>
+        </svg>
+        <span id="download-btn-text">Download Full Report</span>
+      </button>
+    </div>
+  </footer>
+
+  <script src="popup.js"></script>
+</body>
+</html>
